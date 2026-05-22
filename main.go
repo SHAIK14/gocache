@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strings"
 )
 
 func handleConn(conn net.Conn) {
@@ -14,7 +15,25 @@ func handleConn(conn net.Conn) {
 		if err != nil {
 			return
 		}
-		fmt.Println(string(buf[:n]))
+		result := string(buf[:n])
+		parts := strings.Fields(result)
+		if len(parts) == 0 {
+			return
+		}
+		if parts[0] == "SET" && len(parts) == 3 {
+			fmt.Println(parts)
+			conn.Write([]byte("OK\n"))
+		} else if parts[0] == "GET" && len(parts) == 2 {
+			fmt.Println(parts)
+			conn.Write([]byte("OK\n"))
+		} else if parts[0] == "DEL" && len(parts) == 2 {
+			fmt.Println(parts)
+			conn.Write([]byte("OK\n"))
+		} else {
+			fmt.Println("data sahi se de bsdk")
+			conn.Write([]byte("-ERR unknown command\n"))
+
+		}
 
 	}
 
