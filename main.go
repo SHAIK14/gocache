@@ -22,11 +22,12 @@ func handleConn(conn net.Conn, s *store.Store) {
 		if len(parts) == 0 {
 			return
 		}
+		cmd := strings.ToUpper(parts[0])
 
-		if parts[0] == "SET" && len(parts) == 3 {
+		if cmd == "SET" && len(parts) == 3 {
 			s.Set(parts[1], parts[2])
 			conn.Write([]byte("OK\n"))
-		} else if parts[0] == "GET" && len(parts) == 2 {
+		} else if cmd == "GET" && len(parts) == 2 {
 			val, ok := s.Get(parts[1])
 			if !ok {
 				conn.Write([]byte("-ERR not found \n"))
@@ -36,7 +37,7 @@ func handleConn(conn net.Conn, s *store.Store) {
 				conn.Write([]byte(val + "\n"))
 			}
 
-		} else if parts[0] == "DEL" && len(parts) == 2 {
+		} else if cmd == "DEL" && len(parts) == 2 {
 			s.Del(parts[1])
 			conn.Write([]byte("OK\n"))
 		} else {
