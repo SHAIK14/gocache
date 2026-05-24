@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strconv"
 	"strings"
 
 	"github.com/SHAIK14/gocache/store"
@@ -40,6 +41,17 @@ func handleConn(conn net.Conn, s *store.Store) {
 		} else if cmd == "DEL" && len(parts) == 2 {
 			s.Del(parts[1])
 			conn.Write([]byte("OK\n"))
+
+		} else if cmd == "EXPIRE" && len(parts) == 3 {
+			seconds, err := strconv.Atoi(parts[2])
+			if err != nil {
+				conn.Write([]byte("-ERR invalid seconds\n"))
+				continue
+
+			}
+			s.Expiry(parts[1], seconds)
+			conn.Write([]byte("ok\n"))
+
 		} else {
 			fmt.Println("data sahi se de bsdk")
 			conn.Write([]byte("-ERR unknown command\n"))
@@ -56,6 +68,7 @@ func main() {
 		log.Fatal(err)
 	}
 	s := store.NewStore()
+	s.StartSweeper()
 
 	for {
 		conn, err := ln.Accept()
